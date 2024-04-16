@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 import sqlite3
 import json
-
+import glob
+import os
 
 def get_authors(conn):
     cursor = conn.cursor()
@@ -18,7 +19,7 @@ def get_authors(conn):
             `messages` DESC;
     """
     for row in cursor.execute(sql):
-        yield row[0], row[1].encode('utf-8'), row[2]
+        yield row[0], row[1], row[2]
 
 
 def make_thread(conn, thread_root):
@@ -74,8 +75,12 @@ def make_threads(conn, sender_id):
         threads.append(make_thread(conn, row[0]))
     return threads
 
+def clean_the_slate():
+    for f in glob.glob('json_authors/*.json'):
+        os.remove(f)
 
 def main():
+    clean_the_slate()
     conn = sqlite3.connect('database.db')
     for sender_id, from_email, count in get_authors(conn):
         with open('json_authors/{}.json'.format(sender_id), 'w') as o:

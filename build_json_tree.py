@@ -2,7 +2,8 @@
 import sqlite3
 from datetime import datetime
 import json
-
+import glob
+import os
 
 def get_message_rows(cursor):
     sql = "SELECT * FROM `messages` ORDER BY `date` ASC;"
@@ -69,7 +70,13 @@ def build_tree(make_dict, conn, message_id):
     return children
 
 
+def clean_the_slate():
+    for f in glob.glob('json_months/*/*.json'):
+        os.remove(f)
+
+
 def main():
+    clean_the_slate()
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     months = populate_months(get_message_rows(cursor))

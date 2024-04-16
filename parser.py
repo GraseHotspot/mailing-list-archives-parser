@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 from email.parser import Parser
+from email import policy
+import email
 import os
 import glob
 import re
@@ -16,7 +18,7 @@ class EmailMessage(object):
         m.update(raw_text.encode("utf-8"))
         self._message_hash = m.hexdigest()
         self._raw_text = raw_text
-        parsed_message = Parser().parsestr(raw_text)
+        parsed_message = Parser(policy=policy.default).parsestr(raw_text, headersonly=True)
         self._raw_date = parsed_message['Date']
         self._parsed_date = self._parse_date_info(self._raw_date)
         self._file_year = self._parsed_date.year
@@ -60,7 +62,7 @@ class EmailMessage(object):
 
 
 def clean_the_slate(conn):
-    for f in glob.glob('raw_messages/199*/*'):
+    for f in glob.glob('raw_messages/*/*'):
         os.remove(f)
     conn.cursor().execute('CREATE TABLE IF NOT EXISTS "messages" ( \
         	`message_hash`	TEXT NOT NULL UNIQUE, \
