@@ -113,7 +113,7 @@ def make_id_from_email(email):
 
 def escape_chevrons(text):
     if text:
-        return text.encode('utf-8').replace('<', '\\<').replace('>', '\\>')
+        return text.replace('<', '\\<').replace('>', '\\>')
     else:
         return "_N/A_"
 
@@ -146,7 +146,7 @@ def make_back_to_links(thread):
     link_text += "\n"
     for sender_id, email_from in sorted(authors):
         link_text += "+ Return to \"[{}](/authors/{})\"\n".format(
-            email_from.encode('utf-8').replace('@', '<span>@</span>'),
+            email_from.replace('@', '<span>@</span>'),
             sender_id
         )
     return link_text
@@ -160,7 +160,7 @@ def create_message_pages(thread, message=None):
         path = "emails_test/{}/".format(parsed_date.strftime('%Y/%m'))
         iso_date = parsed_date.date().isoformat()
         utc_formatted_date = parsed_date.strftime('%Y-%m-%d %H:%M:%S UTC')
-        raw_date = message["raw_date"].encode('utf-8')
+        raw_date = message["raw_date"]
     else:
         path = "emails_test/{}/unknown/".format(message['file_year'])
         iso_date = "(Unknown Date)"
@@ -176,7 +176,7 @@ def create_message_pages(thread, message=None):
     with open("{}/{}.md".format(path, message["message_hash"]), "w") as o:
         o.write(message_page_template.format(
             iso_date,
-            message["subject"].encode('utf-8'),
+            message["subject"],
             escape_chevrons(message["from"]).replace('@', '<span>@</span>'),
             escape_chevrons(message["to"]),
             message["message_hash"],
@@ -208,18 +208,18 @@ def make_thread_list_item(message, offset, show_link=True):
         iso_date = "(Unknown Date)"
     if show_link:
         subject = make_link(
-            message['subject'].encode('utf-8'),
+            message['subject'],
             path,
             message['message_hash']
         )
     else:
-        subject = message['subject'].encode('utf-8')
+        subject = message['subject']
     return "{}+ {} ({}) - {} - _{}_\n".format(
         "  " * offset,
         iso_date,
         message['raw_date'],
         subject,
-        message['from'].encode('utf-8').replace('<', '\\<').replace('>', '\\>')
+        message['from'].replace('<', '\\<').replace('>', '\\>')
     )
 
 
@@ -238,13 +238,13 @@ def make_markdown_thread_tree(message, message_hash=None, offset=0):
 
 def make_markdown_thread(thread):
     return "### {}\n{}".format(
-        thread['subject'].encode('utf-8'),
+        thread['subject'],
         make_markdown_thread_tree(thread)
     )
 
 
 def build_threads_by_month():
-    for filename in glob.glob('json_months/199*/*.json'):
+    for filename in glob.glob('json_months/*/*.json'):
         print(filename)
         with open(filename) as f:
             threads = json.loads(f.read())
@@ -282,7 +282,7 @@ def build_author_indices():
             o.write(author_file_header.format(
                 author['sender_id'],
                 author['count'],
-                author['from'].encode('utf-8').replace('@', '<span>@</span>'),
+                author['from'].replace('@', '<span>@</span>'),
                 author['count'],
                 "posts" if author['count'] > 1 else "post"
             ))
@@ -303,11 +303,13 @@ def build_author_indices():
         ORDER BY
             `messages` DESC;
     """
+    if not os.path.exists("authors_index/"):
+        os.makedirs("authors_index/")    
     with open('author_index/authors.md', 'w') as o:
         o.write(author_index_template)
         for row in cursor.execute(sql):
             o.write("+ [{}](/authors/{}/) - _{} posts_\n".format(
-                row[0].encode('utf-8').replace('@', '<span>@</span>'),
+                row[0].replace('@', '<span>@</span>'),
                 row[1],
                 row[2],
             ))
