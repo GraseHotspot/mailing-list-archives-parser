@@ -11,15 +11,15 @@ import pprint
 
 class EmailMessage(object):
 
-    def __init__(self, file_year, raw_text):
+    def __init__(self, raw_text):
         m = hashlib.sha256()
-        m.update(raw_text)
+        m.update(raw_text.encode("utf-8"))
         self._message_hash = m.hexdigest()
-        self._file_year = int(file_year)
         self._raw_text = raw_text
         parsed_message = Parser().parsestr(raw_text)
         self._raw_date = parsed_message['Date']
         self._parsed_date = self._parse_date_info(self._raw_date)
+        self._file_year = self._parsed_date.year
         self._unixtime = self._get_unixtime_from_parsed(self._parsed_date)
         self._message_id = parsed_message['Message-ID']
         self._from = parsed_message['From']
@@ -86,7 +86,7 @@ def get_messages():
         for line in f:
             if re.match("From \d+\@xxx", line):
                 if stringbuffer:
-                    yield EmailMessage(2000, stringbuffer)
+                    yield EmailMessage(stringbuffer)
                 stringbuffer = ""
             else:
                 stringbuffer += line
