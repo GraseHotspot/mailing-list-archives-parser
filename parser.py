@@ -94,8 +94,9 @@ def get_messages():
 
 def insert_into_db(conn, message):
     def process_possible_unicode(text):
+        return str(text)
         try:
-            return unicode(text.decode('utf-8', 'replace'))
+            return str(text.decode('utf-8', 'replace'))
         except UnicodeDecodeError:
             return str(text)
 

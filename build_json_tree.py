@@ -42,8 +42,8 @@ def build_threads(conn, months):
             'no_parent': row[11],
             'children': build_tree(make_dict, conn, row[2])
         }
-    for year in months.keys():
-        for month in months[year].keys():
+    for year in list(months.keys()):
+        for month in list(months[year].keys()):
             threads_in_month = []
             for thread_root in months[year][month]:
                 sql = "SELECT * FROM `messages` WHERE `message_hash` = ?;"
@@ -53,9 +53,9 @@ def build_threads(conn, months):
                     row = cursor.fetchone()
                     threads_in_month.append(make_dict(row))
                 except sqlite3.IntegrityError:
-                    print "sqlite3.IntegrityError", thread_root
+                    print("sqlite3.IntegrityError", thread_root)
                 except sqlite3.ProgrammingError:
-                    print "sqlite3.ProgrammingError", thread_root
+                    print("sqlite3.ProgrammingError", thread_root)
             with open('json_months/{}/{}.json'.format(year, month), 'w') as f:
                 f.write(json.dumps(threads_in_month))
 

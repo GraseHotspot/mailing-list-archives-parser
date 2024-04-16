@@ -245,7 +245,7 @@ def make_markdown_thread(thread):
 
 def build_threads_by_month():
     for filename in glob.glob('json_months/199*/*.json'):
-        print filename
+        print(filename)
         with open(filename) as f:
             threads = json.loads(f.read())
         regex = "json_months/([0-9]+)/([0-9]+|unknown).json"
@@ -275,7 +275,7 @@ def build_author_indices():
     if not os.path.exists("authors_test/"):
         os.makedirs("authors_test/")
     for filename in glob.glob('json_authors/*.json'):
-        print filename
+        print(filename)
         with open(filename) as f:
             author = json.loads(f.read())
         with open('authors_test/{}.md'.format(author['sender_id']), 'w') as o:

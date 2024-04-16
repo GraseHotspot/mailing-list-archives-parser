@@ -43,10 +43,10 @@ def make_thread(conn, thread_root):
         row = cursor.fetchone()
         return make_dict(row)
     except sqlite3.IntegrityError:
-        print "sqlite3.IntegrityError", thread_root
+        print("sqlite3.IntegrityError", thread_root)
         return None
     except sqlite3.ProgrammingError:
-        print "sqlite3.ProgrammingError", thread_root
+        print("sqlite3.ProgrammingError", thread_root)
         return None
 
 
@@ -79,7 +79,7 @@ def main():
     conn = sqlite3.connect('database.db')
     for sender_id, from_email, count in get_authors(conn):
         with open('json_authors/{}.json'.format(sender_id), 'w') as o:
-            print sender_id, count
+            print(sender_id, count)
             o.write(json.dumps({
                 'sender_id': sender_id,
                 'from': from_email,
