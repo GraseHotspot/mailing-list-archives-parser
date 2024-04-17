@@ -16,6 +16,8 @@ def set_sender_id(conn, message_hash, sender_id):
 
 
 def make_id_from_email(email):
+    if '<' in email:
+        email = re.search('<(.+)>', email).group(1)
     email = str(email).replace('@', '_at_')
     email = re.sub('[<>\(\)\.\s]+', '_', email)
     email = re.sub('\W+', '', email)
