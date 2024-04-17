@@ -88,6 +88,18 @@ all threads available for that person._
 """
 
 
+years_index_template = """\
+---
+layout: default
+---
+
+# {}
+
+Select one of the months below to view a list of threads:
+
+"""
+
+
 month_name_map = [
     'January',
     'February',
@@ -271,6 +283,25 @@ def build_threads_by_month():
                 o.write("\n")
 
 
+def build_years_index():
+    years_filenames = glob.glob('json_months/*')
+    years = sorted([int(re.match("json_months/([0-9]+)", year_filename).group(1)) for year_filename in glob.glob('json_months/*')])
+    for year in years:
+        print(year)
+        with open('_years/{}.md'.format(year), 'w') as o:
+            o.write(years_index_template.format(year))
+            months = sorted([re.match('json_months/([0-9]+)/([0-9]+|unknown).json', month_filename).group(2) for month_filename in glob.glob('json_months/{}/*.json'.format(year))], key=int) 
+            for month_number in months:
+                print(year, month_number)
+                if month_number != "unknown":
+                    month_name = month_name_map[int(month_number) - 1]
+                else:
+                    month_name = "(unknown month)"
+                o.write('+ [{}](/archive/{})'.format(month_name, month_number))
+                o.write("\n")
+
+
+
 def build_author_indices():
     if not os.path.exists("authors_test/"):
         os.makedirs("authors_test/")
@@ -317,6 +348,7 @@ def build_author_indices():
 
 def main():
     build_threads_by_month()
+    build_years_index()
     build_author_indices()
 
 
