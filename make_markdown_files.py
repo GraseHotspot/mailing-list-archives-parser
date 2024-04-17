@@ -297,7 +297,7 @@ def build_years_index():
                     month_name = month_name_map[int(month_number) - 1]
                 else:
                     month_name = "(unknown month)"
-                o.write('+ [{}](/archive/{})'.format(month_name, month_number))
+                o.write('+ [{}](/archive/{}/{})'.format(month_name, year, month_number.zfill(2)))
                 o.write("\n")
 
 
