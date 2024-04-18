@@ -10,6 +10,8 @@ import dateutil.parser
 import hashlib
 import pprint
 
+from shared import mask_all_emails
+
 
 class EmailMessage(object):
 
@@ -17,8 +19,10 @@ class EmailMessage(object):
         m = hashlib.sha256()
         m.update(raw_text.encode("utf-8"))
         self._message_hash = m.hexdigest()
-        self._raw_text = raw_text
-        parsed_message = Parser(policy=policy.default).parsestr(raw_text, headersonly=True)
+        #self._raw_text = raw_text
+        parsed_message = Parser(policy=policy.default).parsestr(raw_text, headersonly=False)        
+        body = parsed_message.get_body(preferencelist=('plain', 'html')).get_content()
+        self._raw_text = body
         self._raw_date = parsed_message['Date']
         self._parsed_date = self._parse_date_info(self._raw_date)
         self._file_year = self._parsed_date.year
@@ -62,6 +66,8 @@ class EmailMessage(object):
 
 
 def clean_the_slate(conn):
+    if not os.path.exists("raw_messages/"):
+        os.makedirs("raw_messages/")
     for f in glob.glob('raw_messages/*/*'):
         os.remove(f)
     conn.cursor().execute('CREATE TABLE IF NOT EXISTS "messages" ( \
@@ -137,10 +143,13 @@ def insert_into_db(conn, message):
 
 
 def write_message_to_file(message):
+    if not os.path.exists(f"raw_messages/{message._file_year}"):
+        os.makedirs(f"raw_messages/{message._file_year}")
+
     with open("raw_messages/{}/{}.txt".format(
         message._file_year, message._message_hash
     ), "w") as f:
-        f.write(message._raw_text)
+        f.write(mask_all_emails(message._raw_text))
 
 
 def mark_replies_with_no_parent(conn):

@@ -57,6 +57,8 @@ def build_threads(conn, months):
                     print("sqlite3.IntegrityError", thread_root)
                 except sqlite3.ProgrammingError:
                     print("sqlite3.ProgrammingError", thread_root)
+            if not os.path.exists(f'json_months/{year}/'):
+                os.makedirs(f'json_months/{year}/')
             with open('json_months/{}/{}.json'.format(year, month), 'w') as f:
                 f.write(json.dumps(threads_in_month))
 

@@ -76,6 +76,8 @@ def make_threads(conn, sender_id):
     return threads
 
 def clean_the_slate():
+    if not os.path.exists("json_authors/"):
+        os.makedirs("json_authors/")    
     for f in glob.glob('json_authors/*.json'):
         os.remove(f)
 

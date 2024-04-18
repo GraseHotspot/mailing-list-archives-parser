@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sqlite3
 import re
+from shared import make_id_from_email
 
 
 def get_authors(cursor):
@@ -13,15 +14,6 @@ def set_sender_id(conn, message_hash, sender_id):
     cursor = conn.cursor()
     sql = "UPDATE `messages` SET `sender_id` = ? WHERE `message_hash` = ?;"
     cursor.execute(sql, [sender_id, message_hash])
-
-
-def make_id_from_email(email):
-    if '<' in email:
-        email = re.search('<(.+)>', email).group(1)
-    email = str(email).replace('@', '_at_')
-    email = re.sub('[<>\(\)\.\s]+', '_', email)
-    email = re.sub('\W+', '', email)
-    return email.lower()
 
 
 def main():

@@ -5,11 +5,13 @@ import os
 import re
 from datetime import datetime
 import sqlite3
+from shared import make_id_from_email, mask_from
 
 
 month_file_header = """\
 ---
 layout: default
+title: {}
 ---
 
 # {} {}
@@ -46,6 +48,8 @@ all threads available._
 message_page_template = """\
 ---
 layout: default
+title: >
+    {}
 ---
 
 # {} - {}
@@ -53,7 +57,6 @@ layout: default
 ## Header Data
 
 From: {}<br>
-To: {}<br>
 Message Hash: {}<br>
 Message ID: {}<br>
 Reply To: {}<br>
@@ -77,6 +80,7 @@ author_index_template = """\
 ---
 layout: default
 permalink: /authors/
+title: Authors by Number of Posts
 ---
 
 # Authors by Number of Posts (Highest First)
@@ -116,13 +120,6 @@ month_name_map = [
 ]
 
 
-def make_id_from_email(email):
-    email = email.replace('@', '_at_')
-    email = re.sub('[<>\(\)\.\s]+', '_', email)
-    email = re.sub('\W+', '', email)
-    return email.lower()
-
-
 def escape_chevrons(text):
     if text:
         return text.replace('<', '\\<').replace('>', '\\>')
@@ -158,7 +155,7 @@ def make_back_to_links(thread):
     link_text += "\n"
     for sender_id, email_from in sorted(authors):
         link_text += "+ Return to \"[{}](/authors/{})\"\n".format(
-            email_from.replace('@', '<span>@</span>'),
+            mask_from(email_from),
             sender_id
         )
     return link_text
@@ -187,10 +184,11 @@ def create_message_pages(thread, message=None):
         raw_message = "{% raw  %}" + f.read() + "{% endraw %}"
     with open("{}/{}.md".format(path, message["message_hash"]), "w") as o:
         o.write(message_page_template.format(
+            f"{iso_date} - {message['subject']}",
             iso_date,
             message["subject"],
-            escape_chevrons(message["from"]).replace('@', '<span>@</span>'),
-            escape_chevrons(message["to"]),
+            escape_chevrons(mask_from(message["from"])),
+            #escape_chevrons(message["to"]),
             message["message_hash"],
             escape_chevrons(message["message_id"]),
             escape_chevrons(message["reply_to"]),
@@ -231,7 +229,7 @@ def make_thread_list_item(message, offset, show_link=True):
         iso_date,
         message['raw_date'],
         subject,
-        message['from'].replace('<', '\\<').replace('>', '\\>')
+        mask_from(message['from']).replace('<', '\\<').replace('>', '\\>')
     )
 
 
@@ -274,6 +272,7 @@ def build_threads_by_month():
             else:
                 month_name = "(unknown month)"
             o.write(month_file_header.format(
+                f"{month_name} {year}",
                 month_name,
                 year
             ))
@@ -284,6 +283,8 @@ def build_threads_by_month():
 
 
 def build_years_index():
+    if not os.path.exists("_years"):
+        os.makedirs("_years")
     years_filenames = glob.glob('json_months/*')
     years = sorted([int(re.match("json_months/([0-9]+)", year_filename).group(1)) for year_filename in glob.glob('json_months/*')])
     for year in years:
@@ -313,7 +314,7 @@ def build_author_indices():
             o.write(author_file_header.format(
                 author['sender_id'],
                 author['count'],
-                author['from'].replace('@', '<span>@</span>'),
+                mask_from(author['from']),
                 author['count'],
                 "posts" if author['count'] > 1 else "post"
             ))
@@ -340,7 +341,7 @@ def build_author_indices():
         o.write(author_index_template)
         for row in cursor.execute(sql):
             o.write("+ [{}](/authors/{}/) - _{} posts_\n".format(
-                row[0].replace('@', '<span>@</span>'),
+                mask_from(row[0]),
                 row[1],
                 row[2],
             ))
