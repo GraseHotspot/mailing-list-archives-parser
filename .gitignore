@@ -1,0 +1,11 @@
+grasehotspot/topics.mbox
+author_index/
+authors_test/ 
+database.db
+emails_test/
+json_authors/
+json_months/
+raw_messages/
+threads_test/
+__pycache__/
+_years/
