@@ -187,7 +187,7 @@ def create_message_pages(thread, message=None):
             f"{iso_date} - {message['subject']}",
             iso_date,
             message["subject"],
-            escape_chevrons(mask_from(message["from"])),
+            escape_chevrons(mask_from(message["from"], '@')),
             #escape_chevrons(message["to"]),
             message["message_hash"],
             escape_chevrons(message["message_id"]),
@@ -229,7 +229,7 @@ def make_thread_list_item(message, offset, show_link=True):
         iso_date,
         message['raw_date'],
         subject,
-        mask_from(message['from']).replace('<', '\\<').replace('>', '\\>')
+        escape_chevrons(mask_from(message['from'], '@'))
     )
 
 

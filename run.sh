@@ -1,5 +1,5 @@
 #!/bin/bash -ex
-rm -r author_index/authors.md authors_test/ emails_test/ json_authors/ json_months/ raw_messages/ threads_test/ _years/
+rm -r author_index/authors.md authors_test/ emails_test/ json_authors/ json_months/ raw_messages/ threads_test/ _years/ || true
 python3 ./parser.py
 python3 ./set_author_ids.py
 python3 ./build_json_tree.py

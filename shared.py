@@ -16,7 +16,7 @@ def mask_all_emails(text):
 
 def mask_email(email):
     user, domain = email.split('@', 2)
-    user = user[0:2] + (min(len(user) - 2, 5))*"*" + user[-1]
+    user = user[0:2] + "***" + user[-1]
     return f"{user}@{domain}"
 
 
@@ -30,11 +30,11 @@ def make_id_from_email(email):
     return email.lower()    
 
 
-def mask_from(from_text):
+def mask_from(from_text, replace_at='<span>@</span>'):
     if '<' in from_text:
         parts = re.search('(.*)<(.+)>', from_text)
         name = parts.group(1)
-        email = mask_email(parts.group(2)).replace('@', '<span>@</span>')
+        email = mask_email(parts.group(2)).replace('@', replace_at)
         return f"{name}<{email}>"
-    return mask_email(from_text).replace('@', '<span>@</span>')
+    return mask_email(from_text).replace('@', replace_at)
     
